@@ -73,6 +73,7 @@ async function run() {
     // await client.connect();
 
     const usersCollection = client.db("bloodHub").collection("users");
+    const donationCollection = client.db("bloodHub").collection("donations");
 
     // JWT Related API
 
@@ -130,6 +131,19 @@ async function run() {
         return res.send({ message: "user already exists", insertedId: null });
       }
       const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // Blood Donation related API
+
+    app.get("/api/donation", async (req, res) => {
+      const result = await donationCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/api/donation", async (req, res) => {
+      const donation = req.body;
+      const result = await donationCollection.insertOne(donation);
       res.send(result);
     });
 
