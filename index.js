@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 3000;
 require("dotenv").config();
 const app = express();
@@ -141,6 +141,7 @@ async function run() {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
       const donationStatus = req.query.status;
+      const donationId = req.query.id;
 
       if (queryEmail && (page || size)) {
         query = {
@@ -154,7 +155,7 @@ async function run() {
           .toArray();
         res.send(result);
       } else if (donationStatus) {
-        query = {
+        const query = {
           status: donationStatus,
         };
         const result = await donationCollection.find(query).toArray();
@@ -169,6 +170,23 @@ async function run() {
         const result = await donationCollection.find(query).toArray();
         res.send(result);
       }
+    });
+
+    app.get("/api/donation/:id([0-9a-fA-F]{24})", async (req, res) => {
+      const id = req.params.id;
+      const donationStatus = req.query.status;
+
+      const query = {
+        $and: [
+          { _id: new ObjectId(id) },
+          {
+            status: donationStatus,
+          },
+        ],
+      };
+      const result = await donationCollection.findOne(query);
+      console.log(result);
+      res.send(result);
     });
 
     app.post("/api/donation", async (req, res) => {
