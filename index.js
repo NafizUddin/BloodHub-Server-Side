@@ -137,7 +137,15 @@ async function run() {
     // Blood Donation related API
 
     app.get("/api/donation", async (req, res) => {
-      const result = await donationCollection.find().toArray();
+      const queryEmail = req.query?.email;
+      console.log(queryEmail);
+      let query = {};
+      if (queryEmail) {
+        query = {
+          donorEmail: queryEmail,
+        };
+      }
+      const result = await donationCollection.find(query).toArray();
       res.send(result);
     });
 
