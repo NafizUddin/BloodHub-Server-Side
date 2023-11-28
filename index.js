@@ -103,7 +103,7 @@ async function run() {
 
     app.post("/api/auth/logout", async (req, res) => {
       const user = req.body;
-      console.log("user in the token", user);
+
       res
         .clearCookie("token", { maxAge: 0, sameSite: "none", secure: true })
         .send({ success: true });
@@ -138,7 +138,47 @@ async function run() {
 
     app.get("/api/donation", async (req, res) => {
       const queryEmail = req.query?.email;
-      console.log(queryEmail);
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      const donationStatus = req.query.status;
+
+      if (queryEmail && (page || size)) {
+        query = {
+          donorEmail: queryEmail,
+        };
+
+        const result = await donationCollection
+          .find(query)
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+        res.send(result);
+      } else if (donationStatus) {
+        query = {
+          status: donationStatus,
+        };
+        const result = await donationCollection.find(query).toArray();
+        res.send(result);
+      } else {
+        let query = {};
+        if (queryEmail) {
+          query = {
+            donorEmail: queryEmail,
+          };
+        }
+        const result = await donationCollection.find(query).toArray();
+        res.send(result);
+      }
+    });
+
+    app.post("/api/donation", async (req, res) => {
+      const donation = req.body;
+      const result = await donationCollection.insertOne(donation);
+      res.send(result);
+    });
+
+    app.get("/api/donationCount", async (req, res) => {
+      const queryEmail = req.query.email;
       let query = {};
       if (queryEmail) {
         query = {
@@ -146,13 +186,9 @@ async function run() {
         };
       }
       const result = await donationCollection.find(query).toArray();
-      res.send(result);
-    });
+      const countLength = result.length;
 
-    app.post("/api/donation", async (req, res) => {
-      const donation = req.body;
-      const result = await donationCollection.insertOne(donation);
-      res.send(result);
+      res.send({ count: countLength });
     });
 
     // await client.db("admin").command({ ping: 1 });
