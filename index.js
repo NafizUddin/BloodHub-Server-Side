@@ -128,6 +128,7 @@ async function run() {
         query.bloodGroup = queryBlood;
         query.district = queryDistrict;
         query.upazilla = queryUpazilla;
+        query.role = "donor";
       }
       const result = await usersCollection.find(query).toArray();
       res.send(result);
@@ -202,6 +203,17 @@ async function run() {
         ],
       };
       const result = await donationCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.patch("/api/donation/singleDonation/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) };
+      const setStatus = {
+        $set: req.body,
+      };
+      const result = await donationCollection.updateOne(filter, setStatus);
       res.send(result);
     });
 
