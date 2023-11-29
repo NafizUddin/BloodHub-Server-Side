@@ -111,7 +111,25 @@ async function run() {
 
     // User Related API
     app.get("/api/users", async (req, res) => {
-      const result = await usersCollection.find().toArray();
+      const queryEmail = req.query?.email;
+      const queryDistrict = req.query.district;
+      const queryUpazilla = req.query.upazilla;
+      let queryBlood;
+      if (req.query.blood.split(" ")[1] === "positive") {
+        queryBlood = req.query.blood.split(" ")[0] + "+";
+      } else {
+        queryBlood = req.query.blood.split(" ")[0] + "-";
+      }
+      console.log(queryBlood);
+
+      let query = {};
+      if (queryEmail && queryBlood && queryDistrict && queryUpazilla) {
+        query.email = queryEmail;
+        query.bloodGroup = queryBlood;
+        query.district = queryDistrict;
+        query.upazilla = queryUpazilla;
+      }
+      const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -141,7 +159,6 @@ async function run() {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
       const donationStatus = req.query.status;
-      const donationId = req.query.id;
 
       if (queryEmail && (page || size)) {
         query = {
@@ -185,7 +202,6 @@ async function run() {
         ],
       };
       const result = await donationCollection.findOne(query);
-      console.log(result);
       res.send(result);
     });
 
