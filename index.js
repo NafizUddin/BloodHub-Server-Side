@@ -176,6 +176,12 @@ async function run() {
       res.send({ count: countLength });
     });
 
+    app.get("/api/allUsersCount", async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      const countLength = result.length;
+      res.send({ count: countLength });
+    });
+
     app.patch("/api/users/singleUser/:id", async (req, res) => {
       const id = req.params.id;
 
@@ -271,20 +277,24 @@ async function run() {
       res.send({ count: countLength });
     });
 
-    // app.post("/api/create-payment-intent", async (req, res) => {
-    //   const { price } = req.body;
-    //   const amount = parseInt(price * 100);
-    //   // Create a PaymentIntent with the order amount and currency
-    //   const paymentIntent = await stripe.paymentIntents.create({
-    //     amount: amount,
-    //     currency: "usd",
-    //     payment_method_types: ["card"],
-    //   });
+    // Card Related API
 
-    //   res.send({
-    //     clientSecret: paymentIntent.client_secret,
-    //   });
-    // });
+    app.post("/api/create-payment-intent", async (req, res) => {
+      const { amount } = req.body;
+      const amountNum = parseInt(amount * 100);
+
+      console.log(amountNum);
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amountNum,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
 
     // await client.db("admin").command({ ping: 1 });
     console.log(
