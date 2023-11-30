@@ -6,6 +6,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 3000;
 require("dotenv").config();
 const app = express();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -115,12 +116,13 @@ async function run() {
       const queryDistrict = req.query.district;
       const queryUpazilla = req.query.upazilla;
       let queryBlood;
-      if (req.query.blood.split(" ")[1] === "positive") {
-        queryBlood = req.query.blood.split(" ")[0] + "+";
-      } else {
-        queryBlood = req.query.blood.split(" ")[0] + "-";
+      if (req.query.blood) {
+        if (req?.query?.blood.split(" ")[1] === "positive") {
+          queryBlood = req.query.blood.split(" ")[0] + "+";
+        } else {
+          queryBlood = req.query.blood.split(" ")[0] + "-";
+        }
       }
-      console.log(queryBlood);
 
       let query = {};
       if (queryEmail && queryBlood && queryDistrict && queryUpazilla) {
@@ -141,6 +143,18 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/api/user/pagination", async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+
+      const result = await usersCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
+      res.send(result);
+    });
+
     app.post("/api/users", async (req, res) => {
       const user = req.body;
 
@@ -151,6 +165,15 @@ async function run() {
       }
       const result = await usersCollection.insertOne(user);
       res.send(result);
+    });
+
+    app.get("/api/userCount", async (req, res) => {
+      const result = await usersCollection
+        .find({ $or: [{ role: "donor" }, { role: "volunteer" }] })
+        .toArray();
+      const countLength = result.length;
+
+      res.send({ count: countLength });
     });
 
     // Blood Donation related API
@@ -236,6 +259,21 @@ async function run() {
 
       res.send({ count: countLength });
     });
+
+    // app.post("/api/create-payment-intent", async (req, res) => {
+    //   const { price } = req.body;
+    //   const amount = parseInt(price * 100);
+    //   // Create a PaymentIntent with the order amount and currency
+    //   const paymentIntent = await stripe.paymentIntents.create({
+    //     amount: amount,
+    //     currency: "usd",
+    //     payment_method_types: ["card"],
+    //   });
+
+    //   res.send({
+    //     clientSecret: paymentIntent.client_secret,
+    //   });
+    // });
 
     // await client.db("admin").command({ ping: 1 });
     console.log(
