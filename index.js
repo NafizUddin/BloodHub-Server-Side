@@ -277,6 +277,12 @@ async function run() {
       res.send({ count: countLength });
     });
 
+    app.get("/api/allDonationCount", async (req, res) => {
+      const result = await donationCollection.find().toArray();
+      const countLength = result.length;
+      res.send({ count: countLength });
+    });
+
     // Card Related API
 
     app.post("/api/create-payment-intent", async (req, res) => {
