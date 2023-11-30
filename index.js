@@ -176,6 +176,17 @@ async function run() {
       res.send({ count: countLength });
     });
 
+    app.patch("/api/users/singleUser/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) };
+      const setStatus = {
+        $set: req.body,
+      };
+      const result = await usersCollection.updateOne(filter, setStatus);
+      res.send(result);
+    });
+
     // Blood Donation related API
 
     app.get("/api/donation", async (req, res) => {
