@@ -75,6 +75,7 @@ async function run() {
 
     const usersCollection = client.db("bloodHub").collection("users");
     const donationCollection = client.db("bloodHub").collection("donations");
+    const blogCollection = client.db("bloodHub").collection("blogs");
 
     // JWT Related API
 
@@ -299,6 +300,14 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await donationCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // Blog Related API
+
+    app.post("/api/blogs", async (req, res) => {
+      const blog = req.body;
+      const result = await blogCollection.insertOne(blog);
       res.send(result);
     });
 
