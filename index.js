@@ -230,6 +230,18 @@ async function run() {
       }
     });
 
+    app.get("/api/allDonation/pagination", async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+
+      const result = await donationCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
+      res.send(result);
+    });
+
     app.get("/api/donation/:id([0-9a-fA-F]{24})", async (req, res) => {
       const id = req.params.id;
       const donationStatus = req.query.status;
@@ -281,6 +293,13 @@ async function run() {
       const result = await donationCollection.find().toArray();
       const countLength = result.length;
       res.send({ count: countLength });
+    });
+
+    app.delete("/api/donation/:id([0-9a-fA-F]{24})", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await donationCollection.deleteOne(query);
+      res.send(result);
     });
 
     // Card Related API
