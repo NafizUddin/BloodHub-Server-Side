@@ -126,8 +126,7 @@ async function run() {
       }
 
       let query = {};
-      if (queryEmail && queryBlood && queryDistrict && queryUpazilla) {
-        query.email = queryEmail;
+      if (queryBlood && queryDistrict && queryUpazilla) {
         query.bloodGroup = queryBlood;
         query.district = queryDistrict;
         query.upazilla = queryUpazilla;
@@ -310,9 +309,39 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/api/publishedBlogs", async (req, res) => {
+      const blogStatus = req.query.status;
+      const query = {
+        blogStatus: blogStatus,
+      };
+      const result = await blogCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.post("/api/blogs", async (req, res) => {
       const blog = req.body;
       const result = await blogCollection.insertOne(blog);
+      res.send(result);
+    });
+
+    app.patch(
+      "/api/blogs/singleBlog/:id([0-9a-fA-F]{24})",
+      async (req, res) => {
+        const id = req.params.id;
+
+        const filter = { _id: new ObjectId(id) };
+        const setStatus = {
+          $set: req.body,
+        };
+        const result = await blogCollection.updateOne(filter, setStatus);
+        res.send(result);
+      }
+    );
+
+    app.delete("/api/blogs/:id([0-9a-fA-F]{24})", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await blogCollection.deleteOne(query);
       res.send(result);
     });
 
