@@ -1,10 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 3000;
-require("dotenv").config();
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -366,6 +366,15 @@ async function run() {
     });
 
     // Funding related API
+
+    app.get("/api/funding/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = {
+        email: email,
+      };
+      const result = await fundingCollection.find(query).toArray();
+      res.send(result);
+    });
 
     app.post("/api/funding", async (req, res) => {
       const payment = req.body;
