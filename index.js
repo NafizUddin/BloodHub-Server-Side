@@ -73,6 +73,7 @@ async function run() {
   try {
     // await client.connect();
 
+    const fundingCollection = client.db("bloodHub").collection("funding");
     const usersCollection = client.db("bloodHub").collection("users");
     const donationCollection = client.db("bloodHub").collection("donations");
     const blogCollection = client.db("bloodHub").collection("blogs");
@@ -362,6 +363,14 @@ async function run() {
       res.send({
         clientSecret: paymentIntent.client_secret,
       });
+    });
+
+    // Funding related API
+
+    app.post("/api/funding", async (req, res) => {
+      const payment = req.body;
+      const result = await fundingCollection.insertOne(payment);
+      res.send(result);
     });
 
     // await client.db("admin").command({ ping: 1 });
