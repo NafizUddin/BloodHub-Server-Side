@@ -367,6 +367,20 @@ async function run() {
 
     // Funding related API
 
+    app.get("/api/funding", async (req, res) => {
+      const result = await fundingCollection
+        .aggregate([
+          {
+            $group: {
+              _id: null,
+              total: { $sum: "$donation" },
+            },
+          },
+        ])
+        .toArray();
+      res.send(result);
+    });
+
     app.get("/api/funding/:email", async (req, res) => {
       const email = req.params.email;
       const query = {
