@@ -305,6 +305,11 @@ async function run() {
 
     // Blog Related API
 
+    app.get("/api/blogs", async (req, res) => {
+      const result = await blogCollection.find().toArray();
+      res.send(result);
+    });
+
     app.post("/api/blogs", async (req, res) => {
       const blog = req.body;
       const result = await blogCollection.insertOne(blog);
