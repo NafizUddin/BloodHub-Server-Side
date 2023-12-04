@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173"], // Client Side Server
+    origin: ["https://bloodhub-fullstack-a12.netlify.app"], // Client Side Server
     credentials: true,
   })
 );
