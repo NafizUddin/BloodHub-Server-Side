@@ -147,9 +147,12 @@ async function run() {
     app.get("/api/user/pagination", async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
+      const status = req.query.status;
+
+      const query = { status: status };
 
       const result = await usersCollection
-        .find()
+        .find(query)
         .skip(page * size)
         .limit(size)
         .toArray();
@@ -189,7 +192,11 @@ async function run() {
     });
 
     app.get("/api/allUsersCount", async (req, res) => {
-      const result = await usersCollection.find().toArray();
+      let query = {};
+      if (req.query.status) {
+        query.status = req.query.status;
+      }
+      const result = await usersCollection.find(query).toArray();
       const countLength = result.length;
       res.send({ count: countLength });
     });
