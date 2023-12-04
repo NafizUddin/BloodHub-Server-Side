@@ -156,6 +156,17 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/api/existingUsers/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const existingUser = await usersCollection.findOne(query);
+      if (existingUser) {
+        res.send({ found: true });
+      } else {
+        res.send({ found: false });
+      }
+    });
+
     app.post("/api/users", async (req, res) => {
       const user = req.body;
 
